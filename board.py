@@ -7,10 +7,13 @@ import matplotlib.pyplot as plt
 import numpy.random as random
 from engine import GameEngine
 
+import time
+
 
 # global vars
 GAME_TITLE = "Tinder: The Game"
-FRAMERATE = .0333		# in seconds (frame time-> .0333 = 30fps, .0167 = 60fps)
+DESIRED_FRAMERATE = .0167		# in seconds -- frame time-> .0333 = 30fps, 
+								#							 .0167 = 60fps
 
 
 class DrawGrid:
@@ -34,6 +37,7 @@ class DrawGrid:
 					  based on engine rules that were processed during 
 					  previous pass, generating the illusion of animation
 		"""
+		start = 0
 		n = 0
 		plt.title( GAME_TITLE)
 		while 1:
@@ -41,12 +45,23 @@ class DrawGrid:
 				# create image based on init state data
 				image = plt.imshow( self.state)
 			else:
-				# update image based on yielded state, after rules application
+				# update image based on yielded state from previous pass
 				image.set_data( self.state)
+
+			# increment n 
 			n += 1
 			self.gameEngine.rules()
-			print( "life cycle: {}        ".format( n), 
-							end= "\r"
+
+			print( "life cycle: {}\t\t"\
+				   "frame time: {:.3f}\t\t"\
+				   "framerate: {:.2f}\t\t".format( 
+											n, 
+											(time.time() - start), 
+											(1 / (time.time() - start)),
+											), end= "\r",
 			)
-			plt.pause( FRAMERATE)
+			start = 0
+			start = time.time()
+			plt.pause( DESIRED_FRAMERATE)
 			yield self
+
